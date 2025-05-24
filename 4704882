@@ -1,0 +1,2502 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>维度跃迁 v0.3</title>
+    <script src="break_eternity.js"></script>
+    <style>
+        html {
+            touch-action: manipulation;
+        }
+
+        body {
+            background: #ffffff;
+            color: #333333;
+            font-family: Arial;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+            min-width: 320px;
+        }
+        
+        #game {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        
+        #count {
+            text-align: center;
+            margin: 20px;
+        }
+        
+        #count span:first-child {
+            font-size: 16px;
+        }
+        
+        #scalarDisplay {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin: 10px 0;
+        }
+        
+        .nav button {
+            padding: 2px 5px;
+            font-size: 16px;
+            border-radius: 0;
+        }
+        
+        .nav button.active {
+            background: #000;
+            color: #fff;
+            border-color: #fff;
+        }
+        
+        .nav button.blue {
+            color: blue;
+            border-color: blue;
+        }
+        
+        .nav button.blue.active {
+            background: blue;
+            color: #fff;
+            border-color: #fff;
+        }
+        
+        .nav button.green {
+            color: green;
+            border-color: green;
+        }
+        
+        .nav button.green.active {
+            background: green;
+            color: #fff;
+            border-color: #fff;
+        }
+
+        .tabContent {
+            display: none;
+            padding: 10px 0;
+        }
+        
+        .upgrade {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            border: 1px solid #666666;
+            padding: 10px;
+        }
+        
+        .upgrade3d {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            border: 1px solid #666666;
+            padding: 10px;
+            color: green;
+            border-color: green;
+        }
+
+        .upgrade3d.maxed {
+            background: green;
+            color: white;
+            border-color: white;
+        }
+
+        .vector {
+            font-size: 24px;
+            color: blue;
+            font-family: "Times New Roman", serif;
+            font-style: italic;
+        }
+
+        .vector3d {
+            font-size: 24px;
+            color: green;
+            font-family: "Times New Roman", serif;
+            font-style: italic;
+        }
+
+        .d2Text {
+            font-size: 24px;
+            color: blue;
+            font-family: "Times New Roman", serif;
+        }
+        
+        .d3Text {
+            font-size: 24px;
+            color: green;
+            font-family: "Times New Roman", serif;
+        }
+
+        .vectorPointText {
+            font-size: 16px;
+            color: blue;
+            font-family: "Times New Roman", serif;
+        }
+        
+        .d3PointText {
+            font-size: 16px;
+            color: green;
+            font-family: "Times New Roman", serif;
+        }
+
+        .achievement {
+            border: 2px solid #666;
+            padding: 10px;
+            margin: 5px;
+            width: 120px;
+            height: 120px;
+            display: inline-flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            vertical-align: top;
+        }
+        
+        .achievement.completed {
+            background: #aaffaa;
+        }
+        
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background: #f0f0f0;
+            border: 1px solid #666;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            width: 200px;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+        }
+        
+        #clickButton {
+            font-size: 20px;
+            padding: 15px 30px;
+            margin: 20px auto;
+            display: block;
+            width: 200px;
+            aspect-ratio: 2/1;
+        }
+        
+        #ascendBtn {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            color: blue;
+            border-color: blue;
+            width: 120px;
+            aspect-ratio: 2/1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #thirdDimensionBtn {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            color: green;
+            border-color: green;
+            width: 120px;
+            aspect-ratio: 2/1;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        button {
+            background: #f0f0f0;
+            color: #333333;
+            border: 1px solid #666666;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin: 2px;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        button.active, button:hover {
+            background: #000;
+            color: #fff;
+            border-color: #fff;
+        }
+        
+        button.blue.active, button.blue:hover {
+            background: blue;
+            color: #fff;
+            border-color: #fff;
+        }
+        
+        button.green.active, button.green:hover {
+            background: green;
+            color: #fff;
+            border-color: #fff;
+        }
+
+        button.red {
+            background: red;
+            color: white;
+            border-color: darkred;
+        }
+        
+        input {
+            width: 4em;
+            height: 1.5em;
+            text-align: center;
+        }
+        
+        .subNav {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin: 10px 0;
+        }
+        
+        .subNav button {
+            padding: 2px 5px;
+            font-size: 14px;
+            border-radius: 0;
+        }
+        
+        .vectorUpgrade {
+            display: inline-flex;
+            flex-direction: column;
+            width: 150px;
+            height: 130px;
+            border: 1px solid blue;
+            margin: 5px;
+            padding: 30px 10px 10px 10px;
+            position: relative;
+            vertical-align: top;
+        }
+        
+        .vector3dUpgrade {
+            display: inline-flex;
+            flex-direction: column;
+            width: 150px;
+            height: 130px;
+            border: 1px solid green;
+            margin: 5px;
+            padding: 30px 10px 10px 10px;
+            position: relative;
+            vertical-align: top;
+        }
+
+        .vectorUpgrade .index {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-weight: bold;
+        }
+        
+        .vector3dUpgrade .index {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-weight: bold;
+        }
+
+        .vectorUpgrade.purchased {
+            background: blue;
+            color: white;
+            border-color: white;
+        }
+
+        .vector3dUpgrade.purchased {
+            background: green;
+            color: white;
+            border-color: white;
+        }
+
+        .vectorUpgrade.purchased .vector {
+            color: white;
+        }
+        
+        .vector3dUpgrade.purchased .vector3d {
+            color: white;
+        }
+
+        #saveNotification {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #aaffaa;
+            padding: 10px;
+            border: 1px solid #666;
+            display: none;
+        }
+        
+        .formula {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .settingsContent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .version {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 新增样式 */
+        #lengthTab {
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        #lengthValue {
+            font-size: 36px;
+            font-weight: bold;
+            color: #0000FF;
+        }
+        
+        #areaTab {
+            text-align: center;
+            font-size: 16px;
+            color: #0000FF;
+        }
+        
+        #areaValue {
+            font-size: 36px;
+            font-weight: bold;
+            color: green;
+        }
+        #achievementNotification {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #ffd700;
+            padding: 10px;
+            border: 2px solid #666;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .oom-rate {
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        .rate {
+            font-size: 0.8em;
+            color: #666;
+            margin-left: 3px;
+            font-weight: normal;
+        }
+
+        .lengthEffects {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        #vectorPointsDisplay {
+            position: fixed;
+            left: 5px;
+            top: 5px;
+            color: blue;
+            width: 160px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        #thirdDimensionPointsDisplay {
+            position: fixed;
+            right: 5px;
+            top: 5px;
+            color: green;
+            width: 160px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .automationOption {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        @keyframes thirdDimensionReset {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .reset-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 1);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            animation: thirdDimensionReset 2s ease-out;
+            pointer-events: none;
+        }
+
+        .export-dialog {
+            background: #f0f0f0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .export-textarea {
+            width: 80%;
+            min-width: 300px;
+            padding: 10px;
+            border: 1px solid #666;
+            background: #fff;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        .export-button {
+            padding: 8px 16px;
+            margin: 5px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .export-button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="count"><span>你的数量是</span><br><span id="scalarDisplay">0</span></div>
+        <hr>
+        <div class="nav">
+            <button onclick="showTab('1d')" id="1dBtn">一维</button>
+            <button onclick="showTab('2d')" id="2dTab" class="blue" style="display:none">二维</button>
+            <button onclick="showTab('3d')" id="3dTab" class="green" style="display:none">三维</button>
+            <button onclick="showTab('automation')" id="automationTab" style="display:none">自动化</button>
+            <button onclick="showTab('achievements')" id="achievementsBtn">成就</button>
+            <button onclick="showTab('settings')" id="settingsBtn">设置</button>
+        </div>
+
+        <div id="1d" class="tabContent">
+            <div class="subNav">
+                <button onclick="showSubTab('1dUpgrades')" class="active" id="1dUpgradesBtn">升级</button>
+                <button onclick="showSubTab('1dLength')" id="lengthTabBtn" style="display:none">长度</button>
+            </div>
+            
+            <div id="1dUpgrades" class="subTabContent">
+                <button id="clickButton" onclick="clickScalar()">点击获得数量(S)</button>
+                <div class="upgrade">
+                    <div id="u1Desc">U1(<span id="u1Level">0</span>) 增加数量获取</div>
+                    <div>当前：×<span id="u1Multi">1</span></div>
+                    <button onclick="buyU1()">购买（<span id="u1Cost">100</span> 数量）</button>
+                </div>
+                <div class="upgrade" id="u2Container" style="display:none">
+                    <div>U2(<span id="u2Level">0</span>) 自动进行点击</div>
+                    <div>当前：<span id="u2Multi">0</span>/s</div>
+                    <button onclick="buyU2()">购买（<span id="u2Cost">1e8</span> 数量）</button>
+                </div>
+            </div>
+            
+            <div id="1dLength" class="subTabContent" style="display:none">
+                <div id="lengthTab">
+                    <div>你的长度是</div>
+                    <div id="lengthValue">0 普朗克长度</div>
+                    <br>
+                    <div>
+                        将你的数量获取×<span class="lengthEffects" id="lengthScalarEffect">1</span>，
+                        向量点获取×<span class="lengthEffects" id="lengthVectorEffect">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="2d" class="tabContent">
+            <div class="subNav">
+                <button onclick="showSubTab('2dVector')" id="vectorBtn" class="blue">向量</button>
+                <button onclick="showSubTab('2dUpgrades')" id="upgradesBtn" class="blue">升级</button>
+                <button onclick="showSubTab('2dArea')" id="areaTabBtn" class="blue" style="display:none">面积</button>
+            </div>
+            
+            <div id="2dVector" class="subTabContent">
+                <div style="display: flex; gap: 20px; margin: 20px">
+                    <div class="d2Text"><span class="vector">a</span> = (<span id="vecX">0</span>, <span id="vecY">0</span>)</div>
+                    <div>
+                        <div>按比例分配</div>
+                        <input type="number" id="ratioA" min="1" value="1"> : 
+                        <input type="number" id="ratioB" min="1" value="1">
+                    </div>
+                    <div>
+                        分配点数: <input type="number" id="allocate" min="1" value="1">
+                        <button onclick="allocatePoints('vector')">分配</button>
+                        <button onclick="allocateAllPoints('vector')">全部分配</button>
+                    </div>
+                    <button onclick="reallocate('vector')">重新分配</button>
+                </div>
+                <div>当前：U1等级×<span id="currentGain">1</span> <span class="formula">(公式:xycosθ+1)</span></div>
+                
+                <div id="bContainer" style="display:none; margin-top: 30px;">
+                    <div style="display: flex; gap: 20px; margin: 20px">
+                        <div class="d2Text"><span class="vector">b</span> = (<span id="vecBX">0</span>, <span id="vecBY">0</span>)</div>
+                        <div>
+                            <div>按比例分配</div>
+                            <input type="number" id="ratioBA" min="1" value="1"> : 
+                            <input type="number" id="ratioBB" min="1" value="1">
+                        </div>
+                        <div>
+                            分配点数: <input type="number" id="allocateB" min="1" value="1">
+                            <button onclick="allocatePoints('vectorB')">分配</button>
+                            <button onclick="allocateAllPoints('vectorB')">全部分配</button>
+                        </div>
+                        <button onclick="reallocate('vectorB')">重新分配</button>
+                    </div>
+                    <div>当前：自动点击速度^<span id="currentBGain">1</span> <span class="formula">(公式:(lg(|b|+1)+1)<sup>2</sup>)</span></div>
+                </div>
+                
+                <div id="cContainer" style="display:none; margin-top: 30px;">
+                    <div style="display: flex; gap: 20px; margin: 20px">
+                        <div class="d2Text"><span class="vector">c</span> = (<span id="vecCX">0</span>, <span id="vecCY">0</span>)</div>
+                        <div>
+                            <div>按比例分配</div>
+                            <input type="number" id="ratioCA" min="1" value="1"> : 
+                            <input type="number" id="ratioCB" min="1" value="1">
+                        </div>
+                        <div>
+                            分配点数: <input type="number" id="allocateC" min="1" value="1">
+                            <button onclick="allocatePoints('vectorC')">分配</button>
+                            <button onclick="allocateAllPoints('vectorC')">全部分配</button>
+                        </div>
+                        <button onclick="reallocate('vectorC')">重新分配</button>
+                    </div>
+                    <div>当前：<span class="vector">a</span>,<span class="vector">b</span>×<span id="currentCGain">1</span> <span class="formula">(公式:lg(xy+1)+1)</span></div>
+                </div>
+
+                <div id="dContainer" style="display:none; margin-top: 30px;">
+                    <div style="display: flex; gap: 20px; margin: 20px">
+                        <div class="d2Text"><span class="vector">d</span> = (<span id="vecDX">0</span>, <span id="vecDY">0</span>)</div>
+                        <div>
+                            <div>按比例分配</div>
+                            <input type="number" id="ratioDA" min="1" value="1"> : 
+                            <input type="number" id="ratioDB" min="1" value="1">
+                        </div>
+                        <div>
+                            分配点数: <input type="number" id="allocateD" min="1" value="1">
+                            <button onclick="allocatePoints('vectorD')">分配</button>
+                            <button onclick="allocateAllPoints('vectorD')">全部分配</button>
+                        </div>
+                        <button onclick="reallocate('vectorD')">重新分配</button>
+                    </div>
+                    <div>当前：<span class="vector">a</span>,<span class="vector">b</span>,<span class="vector">c</span>坐标^<span id="currentDGain">1</span>，<span class="vector">d</span>×<span id="currentDGain2">1</span> <span class="formula">(公式:^|d|sinθ，×(|d|sinθ)^0.5)</span></div>
+                </div>
+            </div>
+            
+            <div id="2dUpgrades" class="subTabContent" style="display:none">
+                <div class="vectorUpgrade" id="autoClickerUpgrade">
+                    <div class="index">U1</div>
+                    <div>解锁自动点击器</div>
+                    <div>花费：500向量点</div>
+                    <button onclick="buyAutoClicker()">购买</button>
+                </div>
+                <div class="vectorUpgrade" id="vectorBUpgrade">
+                    <div class="index">U2</div>
+                    <div>解锁<span class="vector">b</span></div>
+                    <div>花费：4e18数量</div>
+                    <button onclick="buyVectorB()">购买</button>
+                </div>
+                <div class="vectorUpgrade" id="vectorCUpgrade">
+                    <div class="index">U3</div>
+                    <div>解锁<span class="vector">c</span></div>
+                    <div>花费：10000向量点</div>
+                    <button onclick="buyVectorC()">购买</button>
+                </div>
+                <div class="vectorUpgrade" id="vectorDUpgrade">
+                    <div class="index">U4</div>
+                    <div>解锁<span class="vector">d</span></div>
+                    <div>花费：1e90数量 1e9长度 1e6向量点</div>
+                    <button onclick="buyVectorD()">购买</button>
+                </div>
+            </div>
+
+            <div id="2dArea" class="subTabContent" style="display:none">
+                <div id="areaTab">
+                    <div>你的面积是</div>
+                    <div id="areaValue">0 普朗克长度²</div>
+                    <br>
+                    <div>
+                        将你的长度获取×<span class="lengthEffects" id="areaLengthEffect">1</span>，
+                        U1,U2数量×<span class="lengthEffects" id="areaU1U2Effect">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="3d" class="tabContent">
+            <div class="subNav">
+                <button onclick="showSubTab('3dVector')" id="vector3dBtn" class="green">向量</button>
+                <button onclick="showSubTab('3dUpgrades')" id="upgrades3dBtn" class="green">升级</button>
+            </div>
+            
+            <div id="3dVector" class="subTabContent">
+                <div style="display: flex; gap: 20px; margin: 20px">
+                    <div class="d3Text"><span class="vector3d">e</span> = (<span id="vecEX">0</span>, <span id="vecEY">0</span>, <span id="vecEZ">0</span>)</div>
+                    <div>
+                        <div>按比例分配</div>
+                        <input type="number" id="ratioEA" min="1" value="1"> : 
+                        <input type="number" id="ratioEB" min="1" value="1"> :
+                        <input type="number" id="ratioEC" min="1" value="1">
+                    </div>
+                    <div>
+                        分配点数: <input type="number" id="allocateE" min="1" value="1">
+                        <button onclick="allocatePoints('vectorE')">分配</button>
+                        <button onclick="allocateAllPoints('vectorE')">全部分配</button>
+                    </div>
+                    <button onclick="reallocate('vectorE')">重新分配</button>
+                </div>
+                <div>当前：长度获取×<span id="currentEGain">1</span> <span class="formula">(公式:((x+1)(y+1)(z+1))<sup>10</sup></span></div>
+                
+                <div id="fContainer" style="display:none; margin-top: 30px;">
+                    <div style="display: flex; gap: 20px; margin: 20px">
+                        <div class="d3Text"><span class="vector3d">f</span> = (<span id="vecFX">0</span>, <span id="vecFY">0</span>, <span id="vecFZ">0</span>)</div>
+                        <div>
+                            <div>按比例分配</div>
+                            <input type="number" id="ratioFA" min="1" value="1"> : 
+                            <input type="number" id="ratioFB" min="1" value="1"> :
+                            <input type="number" id="ratioFC" min="1" value="1">
+                        </div>
+                        <div>
+                            分配点数: <input type="number" id="allocateF" min="1" value="1">
+                            <button onclick="allocatePoints('vectorF')">分配</button>
+                            <button onclick="allocateAllPoints('vectorF')">全部分配</button>
+                        </div>
+                        <button onclick="reallocate('vectorF')">重新分配</button>
+                    </div>
+                    <div>当前：向量点获取×<span id="currentFGain">1</span> <span class="formula">(公式:|f|+1)</span></div>
+                </div>
+            </div>
+            
+            <div id="3dUpgrades" class="subTabContent" style="display:none">
+                <div class="vector3dUpgrade" id="lengthEarlyUpgrade">
+                    <div class="index">U1</div>
+                    <div>长度获取提前1e30倍</div>
+                    <div>花费：<span id="lengthEarlyCost">1</span>三维点</div>
+                    <button onclick="buyLengthEarly()">购买</button>
+                </div>
+                <div class="vector3dUpgrade" id="autoBuy1DUpgrade">
+                    <div class="index">U2</div>
+                    <div>自动购买一维升级</div>
+                    <div>花费：<span id="autoBuy1DCost">1</span>三维点</div>
+                    <button onclick="buyAutoBuy1D()">购买</button>
+                </div>
+                <div class="vector3dUpgrade" id="autoClickerUnlockUpgrade">
+                    <div class="index">U3</div>
+                    <div>初始解锁自动点击器</div>
+                    <div>花费：<span id="autoClickerUnlockCost">1</span>三维点</div>
+                    <button onclick="buyAutoClickerUnlock()">购买</button>
+                </div>
+                <div class="vector3dUpgrade" id="vectorPointsAutoUpgrade">
+                    <div class="index">U4</div>
+                    <div>每秒获得升维后获取的100%向量点</div>
+                    <div>花费：<span id="vectorPointsAutoCost">1</span>三维点</div>
+                    <button onclick="buyVectorPointsAuto()">购买</button>
+                </div>
+                <div class="vector3dUpgrade" id="vectorFUpgrade">
+                    <div class="index">U5</div>
+                    <div>解锁<span class="vector3d">f</span></div>
+                    <div>花费：10三维点</div>
+                    <button onclick="buyVectorF()">购买</button>
+                </div>
+                <div class="vector3dUpgrade" id="areaUnlockUpgrade">
+                    <div class="index">U6</div>
+                    <div>解锁面积</div>
+                    <div>花费：10三维点</div>
+                    <button onclick="buyAreaUnlock()">购买</button>
+                </div>
+                
+                <div class="upgrade3d">
+                    <div>长度获取公式指数改善</div>
+                    <div>当前：1/<span id="lengthExponent">9</span></div>
+                    <div>花费：<span id="lengthExponentCost">1</span>三维点</div>
+                    <button onclick="buyLengthExponent()" class="green">购买</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="automation" class="tabContent">
+            <div class="automationOption">
+                <label>自动购买一维升级：</label>
+                <input type="checkbox" id="autoBuy1DToggle" onchange="toggleAutoBuy1D()" 
+                    disabled="true" style="margin-left: 10px;">
+            </div>
+        </div>
+
+        <div id="achievements" class="tabContent">
+            <div class="achievement tooltip" id="d2Achievement">
+                二维化
+                <span class="tooltiptext">达到10000数量<br>奖励：升级1等级+1</span>
+            </div>
+            <div class="achievement tooltip" id="maxAchievement">
+                《最值问题》
+                <span class="tooltiptext">通过调整比例使<span class="vector">a</span>对U1的增益达到最大值<br>奖励：<span class="vector">a</span>对U1的增益×2</span>
+            </div>
+            <div class="achievement tooltip" id="twoDirectionsAchievement">
+                两个方向
+                <span class="tooltiptext">解锁<span class="vector">b</span><br>奖励：向量点获取×1.1</span>
+            </div>
+            <div class="achievement tooltip" id="lightSpeedAchievement">
+                光速点击
+                <span class="tooltiptext">自动点击速度达到3e8/s<br>奖励：<span class="vector">b</span>效果指数+0.1</span>
+            </div>
+            <div class="achievement tooltip" id="uselessVectorsAchievement">
+                搞这么多向量，有什么用！
+                <span class="tooltiptext">在升维中所有向量为0且数量达到1e8<br>奖励：<span class="vector">c</span>×1.5</span>
+            </div>
+            <div class="achievement tooltip" id="longJourneyAchievement">
+                不积跬步，无以至千里
+                <span class="tooltiptext">达到1e6普朗克长度<br>奖励：长度获取公式改善</span>
+            </div>
+            <div class="achievement tooltip" id="fourVectorsAchievement">
+                四维主宰
+                <span class="tooltiptext">使四个向量的加成都达到最大<br>奖励：长度获取×2</span>
+            </div>
+            <div class="achievement tooltip" id="megaVectorAchievement">
+                巨型向量
+                <span class="tooltiptext"><span class="vector">a</span>的任一坐标超过1e7<br>奖励：<span class="vector">a</span>增益公式改善</span>
+            </div>
+            <div class="achievement tooltip" id="breakInfinityAchievement">
+                打破无限
+                <span class="tooltiptext">数量超过1.79e308<br>奖励：自动点击器等级+1</span>
+            </div>
+            <div class="achievement tooltip" id="thirdDimensionAchievement">
+                三维世界
+                <span class="tooltiptext">进行一次三维重置<br>奖励：向量点获取×2</span>
+            </div>
+            <div class="achievement tooltip" id="youAreHackerAchievement">
+                666，这个入是桂
+                <span class="tooltiptext">在一次三维重置中，在666s内使数量达到6.6e66666<br>奖励：略微提升向量点获取</span>
+            </div>
+            <div class="achievement tooltip" id="autoEraAchievement">
+                自动时代
+                <span class="tooltiptext">解锁自动化<br>奖励：<span class="vector">b</span>效果指数+0.1</span>
+            </div>
+            <div class="achievement tooltip" id="spaceVectorBasicAchievement">
+                空间向量初步
+                <span class="tooltiptext">使<span class="vector3d">e</span>的增益达到最大<br>奖励：<span class="vector3d">e</span>×2</span>
+            </div>
+            <div class="achievement tooltip" id="area1ymAchievement">
+                一ym见方
+                <span class="tooltiptext">面积达到1ym²<br>奖励：略微增加面积对长度的增益</span>
+            </div>
+            <div class="achievement tooltip" id="mirrorFAchievement">
+                zyx.
+                <span class="tooltiptext">若<span class="vector3d">e</span>的坐标为(x,y,z)，使<span class="vector3d">f</span>的坐标为(z,y,x)且x≠y≠z,x,y,z>0<br>奖励：略微增加<span class="vector3d">e</span>的增益</span>
+            </div>
+        </div>
+
+        <div id="settings" class="tabContent">
+            <div class="settingsContent">
+                <button onclick="saveGame()">保存</button>
+                <button onclick="importSave()">导入</button>
+                <button onclick="exportSave()">导出</button>
+                <button onclick="tryHardReset()" class="red">硬重置</button><br>
+                <label id="confirmLabel" style="display:none"><input type="checkbox" id="resetConfirm"> 升维重置提示</label>
+                <label id="thirdDimensionConfirmLabel" style="display:none"><input type="checkbox" id="thirdDimensionResetConfirm"> 三维重置提示</label>
+            </div>
+            <div class="version">v0.3</div>
+        </div>
+    </div>
+
+    <div id="vectorPointsDisplay" style="display:none"></div>
+    <div id="thirdDimensionPointsDisplay" style="display:none"></div>
+
+    <button id="ascendBtn" class="ascendBtn"
+        onmouseup="tryAscend()">到达10000数量以升维</button>
+            
+    <button id="thirdDimensionBtn" class="thirdDimensionBtn"
+        onmouseup="tryThirdDimension()">到达5e15向量点以三维重置</button>
+
+     <div id="resetAnimation" class="reset-animation" style="display:none"></div>
+
+    <div id="saveNotification">游戏已保存！</div>
+    <div id="achievementNotification">成就达成！</div>
+
+    <div id="exportContainer" class="export-dialog" style="display: none;">
+        <textarea id="exportOutput" class="export-textarea" rows="10" cols="80" readonly></textarea>
+        <br>
+        <button class="export-button" onclick="copySave()">复制存档</button>
+        <button onclick="closeExport()">关闭</button>
+    </div>
+    <script>
+let game = {
+    scalar: new Decimal(0),
+    length: new Decimal(0),
+    lengthUnlocked: false,
+    area: new Decimal(0),
+    u1: { 
+        level: new Decimal(0),
+        cost: new Decimal(100) 
+    },
+    u2: {
+        level: new Decimal(0),
+        cost: new Decimal(1e8),
+        unlocked: false
+    },
+    vector: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        points: new Decimal(0)
+    },
+    vectorB: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        unlocked: false
+    },
+    vectorC: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        unlocked: false
+    },
+    vectorD: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        unlocked: false
+    },
+    vectorE: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        z: new Decimal(0)
+    },
+    vectorF: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        z: new Decimal(0),
+        unlocked: false
+    },
+    allocationRatios: {
+        vector: { a: 1, b: 1 },
+        vectorB: { a: 1, b: 1 },
+        vectorC: { a: 1, b: 1 },
+        vectorD: { a: 1, b: 1 },
+        vectorE: { a: 1, b: 1, c: 1 },
+        vectorF: { a: 1, b: 1, c: 1 }
+    },
+    vectorUsed: false,
+    upgrades: { 
+        autoClicker: false, 
+        vectorB: false, 
+        vectorC: false, 
+        vectorD: false,
+        lengthEarly: false,
+        autoBuy1D: false,
+        autoClickerUnlock: false,
+        vectorPointsAuto: false,
+        vectorF: false,
+        areaUnlock: false
+    },
+    automation: {
+        autoBuy1D: false
+    },
+    lengthExponent: {
+        level: new Decimal(0),
+        cost: new Decimal(1)
+    },
+    thirdDimensionPoints: new Decimal(0),
+    achievements: { 
+        d2: false, 
+        max: false,
+        twoDirections: false,
+        lightSpeed: false,
+        uselessVectors: false,
+        longJourney: false,
+        fourVectors: false,
+        megaVector: false,
+        breakInfinity: false,
+        thirdDimension: false,
+        youAreHacker: false,
+        autoEra: false,
+        spaceVectorBasic: false,
+        area1ym: false,
+        mirrorF: false
+    },
+    settings: { 
+        confirm: true,
+        thirdDimensionConfirm: true 
+    },
+    hasAscended: false,
+    hasThirdDimension: false,
+    currentTab: '1d',
+    currentSubTabs: {
+        '1d': '1dUpgrades',
+        '2d': '2dVector',
+        '3d': '3dVector',
+        'automation': null,
+        'achievements': null,
+        'settings': null
+    },
+    thirdDimensionStartTime: 0,
+    version: '0.3'
+};
+
+let ax = game.vector.x;
+let ay = game.vector.y;
+let bx = game.vectorB.x.div(1000);
+let by = game.vectorB.y.div(1000);
+let cx = game.vectorC.x.sqrt().div(100);
+let cy = game.vectorC.y.sqrt().div(100);
+let dx = game.vectorD.x.gt(0) ? game.vectorD.x.log(10).div(6) : new Decimal(0);
+let dy = game.vectorD.y.gt(0) ? game.vectorD.y.log(10).div(6) : new Decimal(0);
+let ex = game.vectorE.x;
+let ey = game.vectorE.y;
+let ez = game.vectorE.z;
+let fx = game.vectorF.x.div(10);
+let fy = game.vectorF.y.div(10);
+let fz = game.vectorF.z.div(10);
+dx = dx.max(1);
+dy = dy.max(1);
+
+let gain = new Decimal(0);
+if (!ax.eq(0) || !ay.eq(0)) {
+    if (game.achievements.megaVector) {
+        gain = ay.mul(ax.pow(2).add(ay.pow(2)).sqrt());
+    } else {
+        gain = ax.pow(2).mul(ay).div(ax.pow(2).add(ay.pow(2)).sqrt());
+    }
+}
+gain = gain.add(1).mul(game.achievements.max ? 2 : 1);
+let bMagnitude = bx.pow(2).add(by.pow(2)).sqrt();
+let bGain = bMagnitude.add(1).log(10)
+                  .add(1)
+                  .pow(2 + (game.achievements.lightSpeed ? 0.1 : 0) + (game.achievements.autoEra ? 0.1 : 0));
+let cGain = cx.mul(cy).add(1).log(10).add(1);
+let eGain = ex.add(1).mul(ey.add(1)).mul(ez.add(1));
+if (game.achievements.mirrorF) {
+    eGain = eGain.pow(11);
+} else {
+    eGain = eGain.pow(10);
+}
+let fGain = fx.pow(2).add(fy.pow(2)).add(fz.pow(2)).sqrt().add(1);
+
+let currentScalar = game.scalar;
+let currentLength = game.length;
+let currentArea = game.area;
+let currentVectorPoints = game.vector.points;
+
+const PLANCK_LENGTH = new Decimal('1.616255e-35');
+const lengthUnits = [
+    {unit: "普朗克长度", value: new Decimal(1)},
+    {unit: "ym", value: new Decimal(1e-24).div(PLANCK_LENGTH)},
+    {unit: "zm", value: new Decimal(1e-21).div(PLANCK_LENGTH)},
+    {unit: "am", value: new Decimal(1e-18).div(PLANCK_LENGTH)},
+    {unit: "fm", value: new Decimal(1e-15).div(PLANCK_LENGTH)},
+    {unit: "pm", value: new Decimal(1e-12).div(PLANCK_LENGTH)},
+    {unit: "nm", value: new Decimal(1e-9).div(PLANCK_LENGTH)},
+    {unit: "μm", value: new Decimal(1e-6).div(PLANCK_LENGTH)},
+    {unit: "mm", value: new Decimal(1e-3).div(PLANCK_LENGTH)},
+    {unit: "m", value: new Decimal(1).div(PLANCK_LENGTH)},
+    {unit: "km", value: new Decimal(1e3).div(PLANCK_LENGTH)},
+    {unit: "Mm", value: new Decimal(1e6).div(PLANCK_LENGTH)},
+    {unit: "Gm", value: new Decimal(1e9).div(PLANCK_LENGTH)},
+    {unit: "Tm", value: new Decimal(1e12).div(PLANCK_LENGTH)},
+    {unit: "Pm", value: new Decimal(1e15).div(PLANCK_LENGTH)},
+    {unit: "ly", value: new Decimal('9.461e15').div(PLANCK_LENGTH)},
+    {unit: "pc", value: new Decimal('3.086e16').div(PLANCK_LENGTH)},
+    {unit: "kpc", value: new Decimal('3.086e19').div(PLANCK_LENGTH)},
+    {unit: "Mpc", value: new Decimal('3.086e22').div(PLANCK_LENGTH)},
+    {unit: "Gpc", value: new Decimal('3.086e25').div(PLANCK_LENGTH)},
+    {unit: "uni", value: new Decimal('8.8e26').div(PLANCK_LENGTH)}
+];
+
+function getCurrentLengthUnit(number) {
+    for (let i = lengthUnits.length - 1; i >= 0; i--) {
+        if (number.gte(lengthUnits[i].value)) {
+            return lengthUnits[i];
+        }
+    }
+    return lengthUnits[0];
+}
+
+function formatNumber(num, unit = "") {
+  if (num.lt(1e6)) {
+    // 处理小于1e6的情况，保留两位小数并去除无效零
+    return num.toFixed(2).replace(/\.?0+$/, '') + unit;
+  }
+
+  const originalStr = num.toExponential(6);
+  const [fullMatch, prefix, remaining] = originalStr.match(/^(\(e\^\d+\)|e*)(.*)$/);
+
+  // 解析前导e的层级
+  let eLevel = 0;
+  if (prefix.startsWith('(e^')) {
+    eLevel = parseInt(prefix.match(/\d+/)[0]);
+  } else {
+    eLevel = prefix.length;
+  }
+
+  // 解析剩余部分
+  let mantissa, exponentValue;
+  if (remaining.includes('e')) {
+    [mantissa, exponentValue] = remaining.split('e').map(parseFloat);
+  } else {
+    eLevel--;
+    let originalExponentValue = parseFloat(remaining);
+    exponentValue = Math.floor(parseFloat(remaining));
+    mantissa = Math.pow(10,originalExponentValue - exponentValue);
+  }
+
+  // 动态调整层级
+  let finalMantissa = '';
+  if (exponentValue.toString().length === 5) {
+    finalMantissa = mantissa.toFixed(1).replace(/\.0$/, '') + 'e';
+  } else if (exponentValue.toString().length === 6) {
+    finalMantissa = mantissa.toFixed(0).replace(/\.0$/, '') + 'e';
+  } else if (exponentValue >= 1e6) {
+    eLevel++;
+    exponentValue = new Decimal(exponentValue).toExponential(2).replace('e+','e');
+    finalMantissa = '';
+  } else {
+    finalMantissa = mantissa.toFixed(2).replace(/\.?0+$/, '') + 'e';
+  }
+
+  // 构建最终字符串
+  const MAX_ES = 5;
+  let prefixFormatted = eLevel > MAX_ES ? `(e^${eLevel})` : 'e'.repeat(eLevel);
+  
+  return `${prefixFormatted}${finalMantissa}${exponentValue}` + unit;
+}
+
+
+function formatRate(current, delta, unit = "", dimension = 1) {
+    if (delta.eq(0)) return "";
+    if (unit === "") {
+        if (current.eq(0)) return `(+${formatNumber(delta)}/s)`;
+        const multiplier = current.add(delta.div(20)).div(current);
+        const log10 = multiplier.log(10).mul(20);
+        if (log10.gte(1) && current.gte(1e100)) {
+            return `<span class="oom-rate">(+${formatNumber(log10)}OoMs/s)</span>`;
+        }
+        return `(+${formatNumber(delta)}/s)`;
+    }
+    
+    // 数字转上标 (如 4 → "⁴")
+    const toSuperscript = (num) => {
+        const superscripts = ['⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹'];
+        return num.toString().split('').map(d => superscripts[d]).join('');
+    };
+
+    const baseUnit = getCurrentLengthUnit(delta.pow(new Decimal(1).div(dimension)));
+    const convertedValue = delta.div(baseUnit.value.pow(dimension));
+    const convertedUnit = dimension === 1 ? baseUnit.unit : `${baseUnit.unit}${toSuperscript(dimension)}`
+    if (current.eq(0)) return `(+${formatNumber(convertedValue, convertedUnit)}/s)`;
+    
+    const multiplier = current.add(delta.div(20)).div(current);
+    const log10 = multiplier.log(10).mul(20);
+    
+    if (log10.gte(1) && current.gte(1e100)) {
+        return `<span class="oom-rate">(+${formatNumber(log10)}OoMs/s)</span>`;
+    } else {
+        return `(+${formatNumber(convertedValue, convertedUnit)}/s)`;
+    }
+}
+
+function getMultiplier() {
+    const baseLevel = game.u1.level.add(game.achievements.d2 ? 1 : 0);
+    let areaGain = game.area.add(1);
+    let total = baseLevel.mul(gain).mul(areaGain).add(1).pow(2);
+    if (game.length.gt(0)) total = total.mul(game.length.add(1));
+    return total;
+}
+
+function getAutoClickerSpeed() {
+    if (!game.u2.unlocked) return new Decimal(0);
+    let base = game.u2.level.add(game.achievements.breakInfinity ? 1 : 0);
+    if (game.area.gt(0)) base = base.mul(game.area.add(1));
+    if (game.vectorB.unlocked) {
+        return base.pow(bGain);
+    }
+    return base;
+}
+
+function calculateVectors() {
+    ax = game.vector.x;
+    ay = game.vector.y;
+    bx = game.vectorB.x.div(1000);
+    by = game.vectorB.y.div(1000);
+    cx = game.vectorC.x.sqrt().div(100);
+    cy = game.vectorC.y.sqrt().div(100);
+    dx = game.vectorD.x.gt(0) ? game.vectorD.x.log(10).div(6) : new Decimal(0);
+    dy = game.vectorD.y.gt(0) ? game.vectorD.y.log(10).div(6) : new Decimal(0);
+    ex = game.vectorE.x;
+    ey = game.vectorE.y;
+    ez = game.vectorE.z;
+    fx = game.vectorF.x.div(10);
+    fy = game.vectorF.y.div(10);
+    fz = game.vectorF.z.div(10);
+    dx = dx.max(1);
+    dy = dy.max(1);
+    if (game.achievements.uselessVectors) {
+        cx = cx.mul(1.5);
+        cy = cy.mul(1.5);
+    }
+    if (game.vectorD.unlocked) {
+        dx = dx.mul(dy);
+        dy = dy.pow(2);
+        cx = cx.pow(dy);
+        cy = cy.pow(dy);
+    }
+    if (game.vectorC.unlocked) {
+        const cEffect = cx.mul(cy).add(1).log(10).add(1);
+        ax = ax.mul(cEffect);
+        ay = ay.mul(cEffect);
+        bx = bx.mul(cEffect);
+        by = by.mul(cEffect);
+    }
+    if (game.vectorD.unlocked) {
+        ax = ax.pow(dy);
+        ay = ay.pow(dy);
+        bx = bx.pow(dy);
+        by = by.pow(dy);
+    }
+    if (game.achievements.spaceVectorBasic) {
+        ex = ex.mul(2);
+        ey = ey.mul(2);
+        ez = ez.mul(2);
+    }
+    calculateVectorEffects();
+}
+
+function calculateVectorEffects() {
+    gain = new Decimal(0);
+    if (!ax.eq(0) || !ay.eq(0)) {
+        if (game.achievements.megaVector) {
+            gain = ay.mul(ax.pow(2).add(ay.pow(2)).sqrt());
+        } else {
+            gain = ax.pow(2).mul(ay).div(ax.pow(2).add(ay.pow(2)).sqrt());
+        }
+    }
+    gain = gain.add(1).mul(game.achievements.max ? 2 : 1);
+    bMagnitude = bx.pow(2).add(by.pow(2)).sqrt();
+    bGain = bMagnitude.add(1).log(10)
+                  .add(1)
+                  .pow(2 + (game.achievements.lightSpeed ? 0.1 : 0) + (game.achievements.autoEra ? 0.1 : 0));
+    cGain = cx.mul(cy).add(1).log(10).add(1);
+    eGain = ex.add(1).mul(ey.add(1)).mul(ez.add(1));
+    if (game.achievements.mirrorF) {
+        eGain = eGain.pow(11);
+    } else {
+        eGain = eGain.pow(10);
+    }
+    fGain = fx.pow(2).add(fy.pow(2)).add(fz.pow(2)).sqrt().add(1);
+}
+
+function clickScalar() {
+    game.scalar = game.scalar.add(getMultiplier());
+    updateDisplay();
+}
+
+function updateDisplay() {
+    document.getElementById('scalarDisplay').innerHTML = 
+        `${formatNumber(game.scalar)}<span class="rate">${formatRate(currentScalar, getAutoClickerSpeed().mul(getMultiplier()))}</span>`;
+
+    const logValue = game.scalar.log(10);
+    const lengthBonus = game.length.div(10).add(10).log(10);
+    const achieveBonus = game.achievements.twoDirections ? 1.1 : 1;
+    const thirdDimensionBonus = game.achievements.thirdDimension ? 2 : 1;
+    const exponent = game.achievements.youAreHacker ? 2.01 : 2;
+    // 更新升维按钮
+    const required = game.scalar.gte(10000) 
+        ? Decimal.floor(logValue.div(4).pow(exponent).mul(achieveBonus).mul(thirdDimensionBonus).mul(lengthBonus).mul(fGain))
+        : new Decimal(0);
+    if (required.gt(0)) {
+        if (required.lt(100)) {
+            const nextPoint = calculateNextPoint(required);
+            document.getElementById('ascendBtn').innerHTML = 
+                `升维(A)以获得${formatNumber(required)}向量点<br><small>下一个在：${formatNumber(nextPoint)}数量</small>`;
+        } else {
+            document.getElementById('ascendBtn').innerHTML = `升维(A)以获得${formatNumber(required)}向量点`;
+        }
+    } else {
+        document.getElementById('ascendBtn').innerHTML =`到达10000数量以升维`;
+    }
+
+    // 更新资源显示
+    document.getElementById('vectorPointsDisplay').innerHTML = `你有<span class="vectorPointText">${formatNumber(game.vector.points)}</span><span class="rate">${formatRate(
+        currentVectorPoints, 
+        game.upgrades.vectorPointsAuto ? required : new Decimal(0)
+    )}</span>向量点`;
+    document.getElementById('vectorPointsDisplay').style.display = game.hasAscended ? 'block' : 'none';
+
+    if (game.hasThirdDimension) document.getElementById('thirdDimensionPointsDisplay').innerHTML = `你有<span class="d3PointText">${formatNumber(game.thirdDimensionPoints)}</span>三维点`;
+    // 更新三维重置按钮
+    if (game.achievements.breakInfinity) {
+        document.getElementById('thirdDimensionBtn').style.display = 'flex';
+        document.getElementById('thirdDimensionPointsDisplay').style.display = game.hasThirdDimension ? 'block' : 'none';
+        const thirdDimensionPoints = game.vector.points.gte(5e15) ?  Decimal.floor(game.vector.points.div(5e15).pow(0.1)) : new Decimal(0);
+        if (thirdDimensionPoints.gt(0)) {
+            const next3dPoint = calculateNext3dPoint(thirdDimensionPoints);
+            if (thirdDimensionPoints.lt(100)) {
+                document.getElementById('thirdDimensionBtn').innerHTML = 
+                    `三维重置(T)以获得${formatNumber(thirdDimensionPoints)}三维点<br><small>下一个在：${formatNumber(next3dPoint)}向量点</small>`;
+            } else {
+                document.getElementById('thirdDimensionBtn').innerHTML = 
+                    `三维重置(T)以获得${formatNumber(thirdDimensionPoints)}三维点`;
+            }
+        } else {
+            document.getElementById('thirdDimensionBtn').textContent = `到达5e15向量点以三维重置`;
+        }
+    }
+
+    let areaU1U2Effect = game.area.add(1);
+    let areaLengthEffect = new Decimal(10).pow(game.area.add(1).log(10).pow(game.achievements.area1ym ? 2.1 : 2));
+
+    const threshold = game.upgrades.lengthEarly ? 1 : 1e30;
+
+    if (game.currentTab === '1d') {
+        if (game.currentSubTabs['1d'] === '1dUpgrades') {
+            // 更新U1显示
+            const u1Level = game.u1.level.add(game.achievements.d2 ? 1 : 0);
+            let total = gain.mul(areaU1U2Effect);
+            document.getElementById('u1Desc').innerHTML = `U1(${formatNumber(u1Level)}${!total.eq(1) ? '×'+formatNumber(total) : ''}) 增加数量获取`;
+
+            document.getElementById('u1Multi').textContent = formatNumber(
+                u1Level.mul(total).add(1).pow(2)
+            );
+            document.getElementById('u1Cost').textContent = formatNumber(game.u1.cost);
+
+            // 更新U2显示
+            if (game.u2.unlocked) {
+                document.getElementById('u2Container').style.display = 'flex';
+                const u2Level = game.u2.level.add(game.achievements.breakInfinity ? 1 : 0);
+                document.getElementById('u2Level').textContent = `${formatNumber(u2Level)}${!areaU1U2Effect.eq(1) ? '×'+formatNumber(areaU1U2Effect) : ''}`;
+                document.getElementById('u2Multi').textContent = formatNumber(getAutoClickerSpeed());
+                document.getElementById('u2Cost').textContent = formatNumber(game.u2.cost);
+            }
+        }
+
+        if (!game.lengthUnlocked && game.scalar.gte(threshold)) {
+            game.lengthUnlocked = true;
+            document.getElementById('lengthTabBtn').style.display = 'inline-block';
+        }
+
+        if (game.currentSubTabs['1d'] === '1dLength') {
+            const lengthUnit = getCurrentLengthUnit(game.length);
+            const lengthValue = game.length.div(lengthUnit.value);
+            let lengthGain = new Decimal(0);
+
+            if (game.scalar.gte(threshold)) {
+                lengthGain = game.scalar.div(threshold).pow(
+                    1/((game.achievements.longJourney ? 9 : 10)-game.lengthExponent.level.toNumber())
+                ).mul(game.achievements.fourVectors ? 2 : 1).mul(areaLengthEffect).mul(eGain);
+            }
+
+            document.getElementById('lengthValue').innerHTML = 
+                    `${formatNumber(lengthValue)} ${lengthUnit.unit}<span class="rate">${formatRate(
+                        currentLength, 
+                        lengthGain,
+                        lengthUnit.unit
+                    )}</span>`;
+            document.getElementById('lengthScalarEffect').textContent = formatNumber(game.length.add(1));
+            document.getElementById('lengthVectorEffect').textContent = formatNumber(game.length.div(10).add(10).log(10));
+        }
+    }
+
+    if (game.currentTab === '2d') {
+        if (game.currentSubTabs['2d'] === '2dVector') {
+            document.getElementById('vecX').textContent = formatNumber(ax);
+            document.getElementById('vecY').textContent = formatNumber(ay);
+            document.getElementById('currentGain').textContent = formatNumber(gain);
+
+            if (game.vectorB.unlocked) {
+                document.getElementById('bContainer').style.display = 'block';
+                document.getElementById('vecBX').textContent = formatNumber(bx);
+                document.getElementById('vecBY').textContent = formatNumber(by);
+                document.getElementById('currentBGain').textContent = formatNumber(bGain);
+            }
+    
+            if (game.vectorC.unlocked) {
+                document.getElementById('cContainer').style.display = 'block';
+                document.getElementById('vecCX').textContent = formatNumber(cx);
+                document.getElementById('vecCY').textContent = formatNumber(cy);
+                document.getElementById('currentCGain').textContent = formatNumber(cGain);
+            }
+
+            if (game.vectorD.unlocked) {
+                document.getElementById('dContainer').style.display = 'block';
+                document.getElementById('vecDX').textContent = formatNumber(dx);
+                document.getElementById('vecDY').textContent = formatNumber(dy);
+                document.getElementById('currentDGain').textContent = formatNumber(dy);
+                document.getElementById('currentDGain2').textContent = formatNumber(dy.pow(0.5));
+            }
+
+            let bBase = "lg(|b|+1)+1";
+            if (game.achievements.lightSpeed || game.achievements.autoEra) {
+                bBase = `(${bBase})<sup>${2 + (game.achievements.lightSpeed ? 0.1 : 0) + (game.achievements.autoEra ? 0.1 : 0)}</sup>`;
+            } else {
+                bBase = `(${bBase})<sup>2</sup>`;
+            }
+            document.querySelector('#bContainer > div:nth-child(2) .formula').innerHTML = 
+                `(公式:${bBase})`;
+
+            let aFormula = game.achievements.megaVector ? 
+                "xy/cosθ" : "xycosθ";
+            document.querySelector('#\\32 dVector > div:nth-child(2) .formula').textContent = 
+                `(公式:${aFormula}+1)`;
+        }
+
+        if (game.upgrades.areaUnlock) {
+            document.getElementById('areaTabBtn').style.display = 'inline-block';
+        }
+
+        if (game.currentSubTabs['2d'] === '2dArea') {
+            // 更新面积显示
+            const areaUnit = getCurrentLengthUnit(game.area.sqrt());
+            const areaValue = game.area.div(areaUnit.value.pow(2));
+            let areaGain = new Decimal(0);
+            if (game.vectorB.unlocked) {
+                const crossProduct = ax.mul(by).sub(ay.mul(bx)).abs();
+                if (crossProduct.gte(1e200)) {
+                    areaGain = crossProduct.div(1e200).pow(0.1);
+                }
+            }
+
+            document.getElementById('areaValue').innerHTML = 
+                `${formatNumber(areaValue)} ${areaUnit.unit}²<span class="rate">${formatRate(
+                    currentArea, 
+                    areaGain,
+                    `${areaUnit.unit}²`,2
+                )}</span>`;
+            document.getElementById('areaLengthEffect').textContent = formatNumber(areaLengthEffect);
+            document.getElementById('areaU1U2Effect').textContent = formatNumber(areaU1U2Effect);
+        }
+    }
+
+    if (game.currentTab === '3d') {
+        if (game.currentSubTabs['3d'] === '3dVector') {
+            if (game.hasThirdDimension) {
+                document.getElementById('vecEX').textContent = formatNumber(ex);
+                document.getElementById('vecEY').textContent = formatNumber(ey);
+                document.getElementById('vecEZ').textContent = formatNumber(ez);
+                document.getElementById('currentEGain').textContent = formatNumber(eGain);
+
+                if (game.vectorF.unlocked) {
+                    document.getElementById('fContainer').style.display = 'block';
+                    document.getElementById('vecFX').textContent = formatNumber(fx);
+                    document.getElementById('vecFY').textContent = formatNumber(fy);
+                    document.getElementById('vecFZ').textContent = formatNumber(fz);
+                    document.getElementById('currentFGain').textContent = formatNumber(fGain);
+                }
+            }
+
+            let eBase = "(x+1)(y+1)(z+1)";
+            if (game.achievements.mirrorF) {
+                eBase = `(${eBase})<sup>11</sup>`;
+            } else {
+                eBase = `(${eBase})<sup>10</sup>`;
+            }
+            document.querySelector('#\\33 dVector > div:nth-child(2) .formula').innerHTML = 
+                `(公式:${eBase})`;
+        }
+
+        if (game.currentSubTabs['3d'] === '3dUpgrades') {
+            if (game.hasThirdDimension) {
+                document.getElementById('lengthEarlyCost').textContent = formatNumber(get3DUpgradeCost('lengthEarly'));
+                document.getElementById('autoBuy1DCost').textContent = formatNumber(get3DUpgradeCost('autoBuy1D'));
+                document.getElementById('autoClickerUnlockCost').textContent = formatNumber(get3DUpgradeCost('autoClickerUnlock'));
+                document.getElementById('vectorPointsAutoCost').textContent = formatNumber(get3DUpgradeCost('vectorPointsAuto'));
+        
+                const isMaxed = game.lengthExponent.level.gte(7);
+                const lengthExponentUpgrade = document.querySelector('#\\33 dUpgrades .upgrade3d');
+                if (lengthExponentUpgrade) {
+                    if (isMaxed) {
+                        lengthExponentUpgrade.classList.add('maxed');
+        
+                        const button = lengthExponentUpgrade.querySelector('button');
+                        if (button) button.disabled = true;
+                    }
+                }
+                document.getElementById('lengthExponent').textContent = (game.achievements.longJourney ? 9 : 10)-game.lengthExponent.level.toNumber();
+                document.getElementById('lengthExponentCost').textContent = 
+                isMaxed ? "Infinity" : formatNumber(game.lengthExponent.cost);
+            }
+        }
+    }
+
+    if (game.upgrades.autoBuy1D) {
+        document.getElementById('automationTab').style.display = 'inline-block';
+    }
+
+    if (game.currentTab === 'automation') {
+        document.getElementById('autoBuy1DToggle').disabled = !game.upgrades.autoBuy1D;
+        document.getElementById('autoBuy1DToggle').checked = game.automation.autoBuy1D;
+    }
+
+    if (game.currentTab === 'achievements') {
+        const achievements = Object.entries(game.achievements).map(([key]) => ({
+          id: `${key}Achievement`,
+          condition: game.achievements[key]
+        }));
+
+        // 批量更新成就显示
+        achievements.forEach(ach => {
+          document.getElementById(ach.id).className = 
+            `achievement tooltip ${ach.condition ? 'completed' : ''}`;
+        });
+    }
+
+    currentScalar = game.scalar;
+    currentLength = game.length;
+    currentArea = game.area;
+    currentVectorPoints = game.vector.points;
+    // 更新按钮活动状态
+    updateButtonStates();
+}
+
+function calculateNextPoint(required) {
+    const baseRequired = required.add(1);
+    const lengthBonus = game.length.div(10).add(10).log(10);
+    const achieveBonus = game.achievements.twoDirections ? 1.1 : 1;
+    const thirdDimensionBonus = game.achievements.thirdDimension ? 2 : 1;
+    const exponent = game.achievements.youAreHacker ? 2.01 : 2;
+    const nextScalar = Decimal.pow(
+        10, 
+baseRequired.div(lengthBonus).div(achieveBonus).div(thirdDimensionBonus).div(fGain).pow(1/exponent).mul(4)
+    ).ceil();
+    
+    return nextScalar;
+}
+
+function calculateNext3dPoint(required) {
+    return required.add(1).pow(10).mul(5e15);
+}
+
+function buyU1(isAuto) {
+    if (game.scalar.gte(game.u1.cost)) {
+        const ratio = game.scalar.div(game.u1.cost).add(1);
+        const logVal = Decimal.log(ratio, 2);
+        const max = Decimal.floor(logVal);
+        const totalCost = game.u1.cost.mul(Decimal.pow(2, max).sub(1));
+
+        if (totalCost.lte(game.scalar)) {
+            game.scalar = game.scalar.sub(totalCost);
+            game.u1.level = game.u1.level.add(max);
+            game.u1.cost = game.u1.cost.mul(Decimal.pow(2, max));
+            if (!isAuto) updateDisplay();
+        }
+    }
+}
+
+function buyU2(isAuto) {
+    if (game.u2.unlocked && game.scalar.gte(game.u2.cost)) {
+        const ratio = game.scalar.div(game.u2.cost).add(1);
+        const logVal = Decimal.log(ratio, 2);
+        const max = Decimal.floor(logVal);
+        const totalCost = game.u2.cost.mul(Decimal.pow(2, max).sub(1));
+
+        
+        if (totalCost.lte(game.scalar)) {
+            game.scalar = game.scalar.sub(totalCost);
+            game.u2.level = game.u2.level.add(max);
+            game.u2.cost = game.u2.cost.mul(Decimal.pow(2, max));
+            if (!isAuto) updateDisplay();
+        }
+    }
+}
+
+function tryAscend() {
+    if (game.scalar.gte(10000)) {
+        if (!game.settings.confirm || confirm("确定要升维吗？")) {
+            ascend();
+        }
+    }
+}
+
+function tryThirdDimension() {
+    if (game.vector.points.gte(5e15)) {
+        if (!game.settings.thirdDimensionConfirm || confirm("三维重置是一次大的重置。你将重置你所有的二维向量、二维升级、向量点、长度和数量来换取三维点。你将需要一定的时间才能再次回到这里。确定要进行三维重置吗？")) {
+            if (game.settings.thirdDimensionConfirm) {
+                showResetAnimation();
+                setTimeout(thirdDimension, 1000);
+            } else {
+                thirdDimension();
+            }
+        }
+    }
+}
+
+function showResetAnimation() {
+    const animation = document.getElementById('resetAnimation');
+    animation.style.display = 'flex';
+    setTimeout(() => {
+        animation.style.display = 'none';
+    }, 2000);
+}
+
+function ascend() {
+    const logValue = game.scalar.log(10);
+    const lengthBonus = game.length.div(10).add(10).log(10);
+    const achieveBonus = game.achievements.twoDirections ? 1.1 : 1;
+    const thirdDimensionBonus = game.achievements.thirdDimension ? 2 : 1;
+    const exponent = game.achievements.youAreHacker ? 2.01 : 2;
+    const vecPoints = Decimal.floor(logValue.div(4).pow(exponent).mul(achieveBonus).mul(thirdDimensionBonus).mul(lengthBonus).mul(fGain));
+    
+    game.vector.points = game.vector.points.add(vecPoints);
+    game.scalar = new Decimal(0);
+    game.u1 = { level: new Decimal(0), cost: new Decimal(100) };
+    game.u2 = { level: new Decimal(0), cost: new Decimal(1e8), unlocked: game.u2.unlocked || game.upgrades.autoClickerUnlock };
+    document.getElementById('2dTab').style.display = 'inline-block';
+    document.getElementById('confirmLabel').style.display = 'block';
+    game.hasAscended = true;
+    game.vectorUsed = false;
+    
+    updateDisplay();
+}
+
+function thirdDimension() {
+    const thirdDimensionPoints = Decimal.floor(game.vector.points.div(5e15).pow(0.1));
+    game.thirdDimensionPoints = game.thirdDimensionPoints.add(thirdDimensionPoints);
+
+    game.scalar = new Decimal(0);
+    game.length = new Decimal(0);
+
+    game.u1 = { level: new Decimal(0), cost: new Decimal(100) };
+    game.u2 = { level: new Decimal(0), cost: new Decimal(1e8), unlocked: game.upgrades.autoClickerUnlock };
+
+    game.vector = { x: new Decimal(0), y: new Decimal(0), points: new Decimal(0) };
+    game.vectorB = { x: new Decimal(0), y: new Decimal(0), unlocked: false };
+    game.vectorC = { x: new Decimal(0), y: new Decimal(0), unlocked: false };
+    game.vectorD = { x: new Decimal(0), y: new Decimal(0), unlocked: false };
+    game.vectorUsed = false;
+
+    game.upgrades.autoClicker = game.upgrades.autoClickerUnlock;
+    game.upgrades.vectorB = false;
+    game.upgrades.vectorC = false; 
+    game.upgrades.vectorD = false;
+
+    if (!game.upgrades.autoClickerUnlock) {
+        document.getElementById('autoClickerUpgrade').classList.remove('purchased');
+        document.getElementById('u2Container').style.display = 'none';
+    }
+    document.getElementById('vectorBUpgrade').classList.remove('purchased');
+    document.getElementById('vectorCUpgrade').classList.remove('purchased');
+    document.getElementById('vectorDUpgrade').classList.remove('purchased');
+
+    document.getElementById('bContainer').style.display = 'none';
+    document.getElementById('cContainer').style.display = 'none';
+    document.getElementById('dContainer').style.display = 'none';
+    
+    game.lengthUnlocked = false;
+    document.getElementById('lengthTabBtn').style.display = 'none';
+    game.currentSubTabs['1d'] = '1dUpgrades';
+
+    document.getElementById('3dTab').style.display = 'inline-block';
+    document.getElementById('thirdDimensionConfirmLabel').style.display = 'block';
+    game.hasThirdDimension = true;
+    game.thirdDimensionStartTime = Date.now();
+    calculateVectors();
+    updateDisplay();
+    
+    if (!game.achievements.thirdDimension) {
+        game.achievements.thirdDimension = true;
+        showAchievementNotification("成就达成：三维世界");
+    }
+}
+
+function parseInputToDecimal(inputValue) {
+    try {
+        return new Decimal(inputValue);
+    } catch (e) {
+        return new Decimal(1);
+    }
+}
+
+// 统一分配函数
+function allocatePoints(vectorKey) {
+    const vector = game[vectorKey];
+    if (!vector.unlocked && vectorKey != 'vector' && vectorKey != 'vectorE') return;
+
+    // 动态获取元素
+    const prefix = vectorKey.replace('vector', '');
+    let ratioA, ratioB, ratioC, allocateAmount;
+    
+    if (vectorKey === 'vectorE' || vectorKey === 'vectorF') {
+        ratioA = parseInputToDecimal(document.getElementById(`ratio${prefix}A`).value || 1);
+        ratioB = parseInputToDecimal(document.getElementById(`ratio${prefix}B`).value || 1);
+        ratioC = parseInputToDecimal(document.getElementById(`ratio${prefix}C`).value || 1);
+        allocateAmount = parseInputToDecimal(document.getElementById(`allocate${prefix}`).value || 1);
+    } else {
+        ratioA = parseInputToDecimal(document.getElementById(`ratio${prefix}A`).value || 1);
+        ratioB = parseInputToDecimal(document.getElementById(`ratio${prefix}B`).value || 1);
+        allocateAmount = parseInputToDecimal(document.getElementById(`allocate${prefix}`).value || 1);
+    }
+
+    // 验证输入
+    if (ratioA.lt(0) || ratioB.lt(0) || (ratioC && ratioC.lt(0)) || allocateAmount.lt(0)) {
+        alert("请输入有效数值！");
+        return;
+    }
+
+    // 检查点数是否足够
+    let costType = (vectorKey === 'vectorE' || vectorKey === 'vectorF') ? 'thirdDimensionPoints' : 'vector.points';
+    let pointsAvailable = (vectorKey === 'vectorE' || vectorKey === 'vectorF') ? 
+        game.thirdDimensionPoints : game.vector.points;
+    if (allocateAmount.gt(pointsAvailable)) {
+        alert(`${costType === 'thirdDimensionPoints' ? '三维点' : '向量点'}不足！`);
+        return;
+    }
+
+    // 执行分配
+    if (vectorKey === 'vectorE' || vectorKey === 'vectorF') {
+        game.allocationRatios[vectorKey] = {
+            a: ratioA.toNumber(),
+            b: ratioB.toNumber(),
+            c: ratioC.toNumber()
+        };
+        const total = ratioA.add(ratioB).add(ratioC);
+        vector.x = vector.x.add(allocateAmount.mul(ratioA).div(total));
+        vector.y = vector.y.add(allocateAmount.mul(ratioB).div(total));
+        vector.z = vector.z.add(allocateAmount.mul(ratioC).div(total));
+        game.thirdDimensionPoints = game.thirdDimensionPoints.sub(allocateAmount);
+    } else {
+        game.allocationRatios[vectorKey] = {
+            a: ratioA.toNumber(),
+            b: ratioB.toNumber()
+        };
+        const total = ratioA.add(ratioB);
+        vector.x = vector.x.add(allocateAmount.mul(ratioA).div(total));
+        vector.y = vector.y.add(allocateAmount.mul(ratioB).div(total));
+        game.vector.points = game.vector.points.sub(allocateAmount);
+    }
+    
+    game.vectorUsed = true;
+    calculateVectors();
+    updateDisplay();
+}
+
+// 统一全部分配
+function allocateAllPoints(vectorKey) {
+    const prefix = vectorKey.replace('vector', '');
+    let pointsAvailable = (vectorKey === 'vectorE' || vectorKey === 'vectorF') ? 
+        game.thirdDimensionPoints : game.vector.points;
+    document.getElementById(`allocate${prefix}`).value = pointsAvailable.toString();
+    allocatePoints(vectorKey);
+}
+
+// 统一重新分配
+function reallocate(vectorKey) {
+    const vector = game[vectorKey];
+    if (!vector.unlocked && vectorKey != 'vector' && vectorKey != 'vectorE') return;
+
+    // 计算返还点数
+    const pointsToReturn = vector.x.add(vector.y).add(vector.z || 0);
+    if (vectorKey === 'vectorE' || vectorKey === 'vectorF') {
+        game.thirdDimensionPoints = game.thirdDimensionPoints.add(pointsToReturn);
+    } else {
+        game.vector.points = game.vector.points.add(pointsToReturn);
+    }
+    vector.x = new Decimal(0);
+    vector.y = new Decimal(0);
+    if (vector.z !== undefined) vector.z = new Decimal(0);
+    game.vectorUsed = true;
+    calculateVectors();
+    updateDisplay();
+}
+
+function loadAllocationRatios(vectorKey) {
+    const ratios = game.allocationRatios[vectorKey];
+    const prefix = vectorKey.replace('vector', '');
+    
+    if (vectorKey === 'vectorE' || vectorKey === 'vectorF') {
+        document.getElementById(`ratio${prefix}A`).value = ratios.a;
+        document.getElementById(`ratio${prefix}B`).value = ratios.b;
+        document.getElementById(`ratio${prefix}C`).value = ratios.c;
+    } else {
+        document.getElementById(`ratio${prefix}A`).value = ratios.a;
+        document.getElementById(`ratio${prefix}B`).value = ratios.b;
+    }
+}
+
+function buyAutoClicker() {
+    const cost = new Decimal(500);
+    if (game.vector.points.gte(cost) && !game.upgrades.autoClicker) {
+        game.vector.points = game.vector.points.sub(cost);
+        game.upgrades.autoClicker = true;
+        game.u2.unlocked = true;
+        document.getElementById('autoClickerUpgrade').classList.add('purchased');
+        updateDisplay();
+    }
+}
+
+function buyVectorB() {
+    const cost = new Decimal(4e18);
+    if (game.scalar.gte(cost) && !game.upgrades.vectorB) {
+        game.scalar = game.scalar.sub(cost);
+        game.upgrades.vectorB = true;
+        game.vectorB.unlocked = true;
+        document.getElementById('vectorBUpgrade').classList.add('purchased');
+        
+        if (!game.achievements.twoDirections) {
+            game.achievements.twoDirections = true;
+            showAchievementNotification("成就达成：两个方向");
+        }
+    }
+}
+
+function buyVectorC() {
+    if (game.vector.points.gte(10000) && !game.upgrades.vectorC) {
+        game.vector.points = game.vector.points.sub(10000);
+        game.upgrades.vectorC = true;
+        game.vectorC.unlocked = true;
+        document.getElementById('vectorCUpgrade').classList.add('purchased');
+        updateDisplay();
+    }
+}
+
+function buyVectorD() {
+    const costScalar = new Decimal(1e90);
+    const costLength = new Decimal(1e9);
+    const costVector = new Decimal(1e6);
+    
+    if (game.scalar.gte(costScalar) && 
+        game.length.gte(costLength) && 
+        game.vector.points.gte(costVector) &&
+        !game.upgrades.vectorD) {
+        
+        game.scalar = game.scalar.sub(costScalar);
+        game.length = game.length.sub(costLength);
+        game.vector.points = game.vector.points.sub(costVector);
+        game.upgrades.vectorD = true;
+        game.vectorD.unlocked = true;
+        document.getElementById('vectorDUpgrade').classList.add('purchased');
+        updateDisplay();
+    }
+}
+
+function get3DUpgradeCost(upgrade) {
+    let baseCost = new Decimal(1);
+    if (upgrade === 'vectorF' || upgrade === 'areaUnlock') return new Decimal(10);
+    
+    // 计算其他升级的初始价格
+    let purchasedCount = 0;
+    if (game.upgrades.lengthEarly) purchasedCount++;
+    if (game.upgrades.autoBuy1D) purchasedCount++;
+    if (game.upgrades.autoClickerUnlock) purchasedCount++;
+    if (game.upgrades.vectorPointsAuto) purchasedCount++;
+    
+    return baseCost.add(purchasedCount);
+}
+
+function buyLengthEarly() {
+    const cost = get3DUpgradeCost('lengthEarly');
+    if (game.thirdDimensionPoints.gte(cost) && !game.upgrades.lengthEarly) {
+        game.thirdDimensionPoints = game.thirdDimensionPoints.sub(cost);
+        game.upgrades.lengthEarly = true;
+        document.getElementById('lengthEarlyUpgrade').classList.add('purchased');
+         
+        updateDisplay();
+    }
+}
+
+function buyAutoBuy1D() {
+    const cost = get3DUpgradeCost('autoBuy1D');
+    if (game.thirdDimensionPoints.gte(cost) && !game.upgrades.autoBuy1D) {
+        game.thirdDimensionPoints = game.thirdDimensionPoints.sub(cost);
+        game.upgrades.autoBuy1D = true;
+        document.getElementById('autoBuy1DUpgrade').classList.add('purchased');
+        game.automation.autoBuy1D = true;
+        
+        if (!game.achievements.autoEra) {
+            game.achievements.autoEra = true;
+            calculateVectorEffects();
+            showAchievementNotification("成就达成：自动时代");
+        }
+    }
+}
+
+function buyAutoClickerUnlock() {
+    const cost = get3DUpgradeCost('autoClickerUnlock');
+    if (game.thirdDimensionPoints.gte(cost) && !game.upgrades.autoClickerUnlock) {
+        game.thirdDimensionPoints = game.thirdDimensionPoints.sub(cost);
+        game.upgrades.autoClickerUnlock = true;
+        game.u2.unlocked = true;
+        document.getElementById('autoClickerUpgrade').classList.add('purchased');
+        document.getElementById('autoClickerUnlockUpgrade').classList.add('purchased');
+        updateDisplay();
+    }
+}
+
+function buyVectorPointsAuto() {
+    const cost = get3DUpgradeCost('vectorPointsAuto');
+    if (game.thirdDimensionPoints.gte(cost) && !game.upgrades.vectorPointsAuto) {
+        game.thirdDimensionPoints = game.thirdDimensionPoints.sub(cost);
+        game.upgrades.vectorPointsAuto = true;
+        document.getElementById('vectorPointsAutoUpgrade').classList.add('purchased');
+        updateDisplay();
+    }
+}
+
+function buyVectorF() {
+    const cost = new Decimal(10);
+    if (game.thirdDimensionPoints.gte(cost) && !game.upgrades.vectorF) {
+        game.thirdDimensionPoints = game.thirdDimensionPoints.sub(cost);
+        game.upgrades.vectorF = true;
+        game.vectorF.unlocked = true;
+        document.getElementById('vectorFUpgrade').classList.add('purchased');
+        updateDisplay();
+    }
+}
+
+function buyAreaUnlock() {
+    const cost = new Decimal(10);
+    if (game.thirdDimensionPoints.gte(cost) && !game.upgrades.areaUnlock) {
+        game.thirdDimensionPoints = game.thirdDimensionPoints.sub(cost);
+        game.upgrades.areaUnlock = true;
+        document.getElementById('areaUnlockUpgrade').classList.add('purchased');
+        updateDisplay();
+    }
+}
+
+function buyLengthExponent() {
+    if (game.thirdDimensionPoints.gte(game.lengthExponent.cost) && game.lengthExponent.level.lt(7)) {
+        game.thirdDimensionPoints = game.thirdDimensionPoints.sub(game.lengthExponent.cost);
+        game.lengthExponent.level = game.lengthExponent.level.add(1);
+        game.lengthExponent.cost = game.lengthExponent.cost.add(1);
+        updateDisplay();
+    }
+}
+
+function toggleAutoBuy1D() {
+    game.automation.autoBuy1D = document.getElementById('autoBuy1DToggle').checked;
+}
+
+function showTab(tabName) {
+    document.querySelectorAll('.tabContent').forEach(tab => tab.style.display = 'none');
+    document.getElementById(tabName).style.display = 'block';
+    game.currentTab = tabName;
+    
+    // 获取该主标签上次保存的子标签状态
+    const subTab = game.currentSubTabs[tabName];
+    if (subTab) showSubTab(subTab);
+    
+    if (tabName === '2d') {
+        ['vector', 'vectorB', 'vectorC', 'vectorD'].forEach(v => {
+            if (game.currentSubTabs['2d'] === '2dVector') {
+                loadAllocationRatios(v);
+            }
+        });
+    }
+    if (tabName === '3d') {
+        ['vectorE', 'vectorF'].forEach(v => {
+            if (game.currentSubTabs['3d'] === '3dVector') {
+                loadAllocationRatios(v);
+            }
+        });
+    }
+
+    updateButtonStates();
+}
+
+function showSubTab(subTabName) {
+    document.querySelectorAll('.subTabContent').forEach(tab => tab.style.display = 'none');
+    const parentTab = game.currentTab;
+    game.currentSubTabs[parentTab] = subTabName;
+    const element = document.getElementById(subTabName);
+    if (element) element.style.display = 'block';;
+    updateButtonStates();
+}
+
+function updateButtonStates() {
+    // 主标签按钮状态
+    const tabStates = {
+        '1dBtn': { active: game.currentTab === '1d', class: '' },
+        '2dTab': { active: game.currentTab === '2d', class: 'blue' },
+        '3dTab': { active: game.currentTab === '3d', class: 'green' },
+        'automationTab': { active: game.currentTab === 'automation', class: '' },
+        'achievementsBtn': { active: game.currentTab === 'achievements', class: '' },
+        'settingsBtn': { active: game.currentTab === 'settings', class: '' }
+    };
+
+    // 更新主标签按钮
+    Object.entries(tabStates).forEach(([id, state]) => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.className = `${state.class} ${state.active ? 'active' : ''}`.trim();
+        }
+    });
+
+    // 子标签处理函数
+    const updateSubTabs = (tabId, buttons, activeClass = '') => {
+        const currentSub = game.currentSubTabs[tabId];
+        buttons.forEach(btnId => {
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                const isActive = btn.getAttribute('onclick').includes(currentSub);
+                btn.className = `${activeClass} ${isActive ? 'active' : ''}`.trim();
+            }
+        });
+    };
+
+    // 更新各标签页的子按钮
+    if (game.currentTab === '1d') {
+        updateSubTabs('1d', ['1dUpgradesBtn','lengthTabBtn']);
+    }
+    
+    if (game.currentTab === '2d') {
+        updateSubTabs('2d', ['vectorBtn', 'upgradesBtn','areaTabBtn'], 'blue');
+    }
+    
+    if (game.currentTab === '3d') {
+        updateSubTabs('3d', ['vector3dBtn', 'upgrades3dBtn'], 'green');
+    }
+}
+
+function saveGame() {
+    // 加密存档
+    let saveData = btoa(JSON.stringify(game));
+    localStorage.setItem('dimensionJumpSave', saveData);
+    
+    // 显示保存通知
+    showSaveNotification();
+}
+
+const defaultGame = {
+    scalar: new Decimal(0),
+    length: new Decimal(0),
+    lengthUnlocked: false,
+    area: new Decimal(0),
+    u1: { 
+        level: new Decimal(0),
+        cost: new Decimal(100) 
+    },
+    u2: {
+        level: new Decimal(0),
+        cost: new Decimal(1e8),
+        unlocked: false
+    },
+    vector: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        points: new Decimal(0)
+    },
+    vectorB: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        unlocked: false
+    },
+    vectorC: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        unlocked: false
+    },
+    vectorD: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        unlocked: false
+    },
+    vectorE: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        z: new Decimal(0)
+    },
+    vectorF: {
+        x: new Decimal(0),
+        y: new Decimal(0),
+        z: new Decimal(0),
+        unlocked: false
+    },
+    allocationRatios: {
+        vector: { a: 1, b: 1 },
+        vectorB: { a: 1, b: 1 },
+        vectorC: { a: 1, b: 1 },
+        vectorD: { a: 1, b: 1 },
+        vectorE: { a: 1, b: 1, c: 1 },
+        vectorF: { a: 1, b: 1, c: 1 }
+    },
+    vectorUsed: false,
+    upgrades: { 
+        autoClicker: false, 
+        vectorB: false, 
+        vectorC: false, 
+        vectorD: false,
+        lengthEarly: false,
+        autoBuy1D: false,
+        autoClickerUnlock: false,
+        vectorPointsAuto: false,
+        vectorF: false,
+        areaUnlock: false
+    },
+    automation: {
+        autoBuy1D: false
+    },
+    lengthExponent: {
+        level: new Decimal(0),
+        cost: new Decimal(1)
+    },
+    thirdDimensionPoints: new Decimal(0),
+    achievements: { 
+        d2: false, 
+        max: false,
+        twoDirections: false,
+        lightSpeed: false,
+        uselessVectors: false,
+        longJourney: false,
+        fourVectors: false,
+        megaVector: false,
+        breakInfinity: false,
+        thirdDimension: false,
+        youAreHacker: false,
+        autoEra: false,
+        spaceVectorBasic: false,
+        area1ym: false,
+        mirrorF: false
+    },
+    settings: { 
+        confirm: true,
+        thirdDimensionConfirm: true 
+    },
+    hasAscended: false,
+    hasThirdDimension: false,
+    currentTab: '1d',
+    currentSubTabs: {
+        '1d': '1dUpgrades',
+        '2d': '2dVector',
+        '3d': '3dVector',
+        'automation': null,
+        'achievements': null,
+        'settings': null
+    },
+    thirdDimensionStartTime: 0,
+    version: '0.3'
+};
+
+function loadGame() {
+    try {
+        const saveData = localStorage.getItem('dimensionJumpSave');
+        if (!saveData) {
+            game = defaultGame;
+            return;
+        }
+
+        const decoded = JSON.parse(atob(saveData));
+        
+        game = deepMerge(defaultGame, decoded);
+        convertToDecimal(game);
+        game.thirdDimensionStartTime = game.thirdDimensionStartTime.toNumber();
+        game.version = defaultGame.version;
+        
+        // 恢复界面状态
+        document.getElementById('2dTab').style.display = 
+            game.hasAscended ? 'inline-block' : 'none';
+        document.getElementById('3dTab').style.display = 
+            game.hasThirdDimension ? 'inline-block' : 'none';
+        document.getElementById('automationTab').style.display = 
+            game.upgrades.autoBuy1D ? 'inline-block' : 'none';
+        document.getElementById('confirmLabel').style.display = 
+            game.hasAscended ? 'block' : 'none';
+        document.getElementById('thirdDimensionConfirmLabel').style.display = 
+            game.hasThirdDimension ? 'block' : 'none';
+        document.getElementById('thirdDimensionBtn').style.display = 
+            game.achievements.breakInfinity ? 'block' : 'none';
+       
+        document.getElementById('lengthTabBtn').style.display = game.lengthUnlocked ?  'inline-block' : 'none';
+
+        document.getElementById('resetConfirm').checked = game.settings.confirm;
+        document.getElementById('thirdDimensionResetConfirm').checked = game.settings.thirdDimensionConfirm;
+
+        // 需要添加 purchased 状态的升级列表
+        const upgradesToCheck = [
+            'autoClicker', 'vectorB', 'vectorC', 'vectorD',
+            'lengthEarly', 'autoBuy1D', 'autoClickerUnlock',
+            'vectorPointsAuto', 'vectorF', 'areaUnlock'
+        ];
+
+        // 批量检查并添加 purchased 类
+        upgradesToCheck.forEach(upgrade => {
+            if (game.upgrades[upgrade]) {
+                const element = document.getElementById(`${upgrade}Upgrade`);
+                if (element) {
+                    element.classList.add('purchased');
+                }
+            }
+        });
+
+        calculateVectors();
+        updateDisplay();
+        showTab(game.currentTab);
+    } catch (e) {
+        console.error("加载存档失败:", e);
+    }
+}
+
+// ========== 工具函数 ==========
+function deepMerge(target, source) {
+    const result = { ...target };
+    for (const key in source) {
+        if (source[key] instanceof Object && !(source[key] instanceof Decimal)) {
+            result[key] = deepMerge(target[key] || {}, source[key]);
+        } else {
+            result[key] = source[key] !== undefined ? source[key] : target[key];
+        }
+    }
+    return result;
+}
+
+function convertToDecimal(obj) {
+    for (const key in obj) {
+        if (obj[key] && typeof obj[key] === 'object') {
+            convertToDecimal(obj[key]); // 递归处理子对象
+        } else if (typeof obj[key] === 'string' && !isNaN(obj[key])) {
+            obj[key] = new Decimal(obj[key]); // 转换字符串数字
+        } else if (typeof obj[key] === 'number') {
+            obj[key] = new Decimal(obj[key]); // 转换普通数字
+        }
+    }
+}
+
+function importSave() {
+    let saveString = prompt('请输入存档代码:');
+    if (saveString) {
+        try {
+            const decoded = JSON.parse(atob(saveString));
+            game = deepMerge(defaultGame, decoded);
+            convertToDecimal(game);
+            
+            game.thirdDimensionStartTime = game.thirdDimensionStartTime.toNumber();
+            game.version = defaultGame.version;
+
+            // 恢复界面状态
+            document.getElementById('2dTab').style.display = 
+                game.hasAscended ? 'inline-block' : 'none';
+            document.getElementById('3dTab').style.display = 
+                game.hasThirdDimension ? 'inline-block' : 'none';
+            document.getElementById('automationTab').style.display = 
+                game.upgrades.autoBuy1D ? 'inline-block' : 'none';
+            document.getElementById('confirmLabel').style.display = 
+                game.hasAscended ? 'block' : 'none';
+            document.getElementById('thirdDimensionConfirmLabel').style.display = 
+                game.hasThirdDimension ? 'block' : 'none';
+            document.getElementById('thirdDimensionBtn').style.display = 
+                game.achievements.breakInfinity ? 'block' : 'none';
+        
+            document.getElementById('resetConfirm').checked = game.settings.confirm;
+            document.getElementById('thirdDimensionResetConfirm').checked = game.settings.thirdDimensionConfirm;
+
+            // 需要添加 purchased 状态的升级列表
+            const upgradesToCheck = [
+                'autoClicker', 'vectorB', 'vectorC', 'vectorD',
+                'lengthEarly', 'autoBuy1D', 'autoClickerUnlock',
+                'vectorPointsAuto', 'vectorF', 'areaUnlock'
+            ];
+
+            // 批量检查并添加 purchased 类
+            upgradesToCheck.forEach(upgrade => {
+                if (game.upgrades[upgrade]) {
+                    const element = document.getElementById(`${upgrade}Upgrade`);
+                    if (element) {
+                        element.classList.add('purchased');
+                    }
+                }
+            });
+
+            showTab(game.currentTab);
+            calculateVectors();
+            showAchievementNotification("存档导入成功");
+        } catch (e) {
+            alert('存档无效！');
+        }
+    }
+}
+
+function exportSave() {
+    const saveData = localStorage.getItem('dimensionJumpSave');
+    const container = document.getElementById("exportContainer");
+    const textarea = document.getElementById("exportOutput");
+    textarea.value = saveData;
+    container.style.display = "block";
+}
+
+function copySave() {
+      const textarea = document.getElementById("exportOutput");
+      textarea.select();
+    try {
+        document.execCommand("copy");
+        alert("复制成功！");
+    } catch (e) {
+        alert("复制失败，请手动选择文本复制！");
+    }
+}
+
+function closeExport() {
+     document.getElementById("exportContainer").style.display = "none";
+}
+
+let resetCounter = 0;
+function tryHardReset() {
+    resetCounter++;
+    
+    if (resetCounter >= 10) {
+        if (confirm('确定要硬重置吗？所有进度将丢失！')) {
+            hardReset();
+        } else {
+            resetCounter = 0;
+        }  
+    } else {
+        alert(`再点击${10 - resetCounter}次确认硬重置`);
+    }
+}
+
+function hardReset() {
+    localStorage.removeItem('dimensionJumpSave');
+    alert('游戏已重置！');
+    location.reload();
+}
+
+function showSaveNotification() {
+    let notification = document.getElementById('saveNotification');
+    notification.style.display = 'block';
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 2000);
+}
+
+// 自动保存
+setInterval(() => {
+    saveGame();
+}, 60000);
+
+// 自动化
+setInterval(() => {
+    const u2Level = game.u2.level.add(game.achievements.breakInfinity ? 1 : 0);
+    if (game.u2.unlocked && u2Level.gt(0)) {
+        const gain = getAutoClickerSpeed().mul(getMultiplier()).div(20);
+        game.scalar = game.scalar.add(gain);
+    }
+
+    const threshold = game.upgrades.lengthEarly ? 1 : 1e30;
+    let areaLengthEffect = new Decimal(10).pow(game.area.add(1).log(10).pow(game.achievements.area1ym ? 2.1 : 2));
+    
+    if (game.scalar.gte(threshold)) {
+        const exponent = 1/((game.achievements.longJourney ? 9 : 10)-game.lengthExponent.level.toNumber());
+        const gain = game.scalar.div(threshold).pow(exponent).mul(game.achievements.fourVectors ? 2 : 1).mul(areaLengthEffect).mul(eGain).div(20);
+        game.length = game.length.add(gain);
+    }
+
+    // 自动获得向量点
+    if (game.upgrades.vectorPointsAuto && game.scalar.gte(10000)) {
+        const logValue = game.scalar.log(10);
+        const lengthBonus = game.length.div(10).add(10).log(10);
+        const achieveBonus = game.achievements.twoDirections ? 1.1 : 1;
+        const thirdDimensionBonus = game.achievements.thirdDimension ? 2 : 1;
+        const exponent = game.achievements.youAreHacker ? 2.01 : 2;
+        const vecPoints = Decimal.floor(logValue.div(4).pow(exponent).mul(achieveBonus).mul(thirdDimensionBonus).mul(lengthBonus).mul(fGain).div(20));
+        game.vector.points = game.vector.points.add(vecPoints);
+    }
+
+    // 自动购买一维升级
+    if (game.upgrades.autoBuy1D && game.automation.autoBuy1D) {
+        if (game.scalar.gte(game.u1.cost)) {
+            buyU1(true);
+        }
+        if (game.u2.unlocked && game.scalar.gte(game.u2.cost)) {
+            buyU2(true);
+        }
+    }
+
+    // 面积增长
+    if (game.upgrades.areaUnlock && game.vectorB.unlocked) {
+        const crossProduct = ax.mul(by).sub(ay.mul(bx)).abs();
+        if (crossProduct.gte(1e200)) {
+            const gain = crossProduct.div(1e200).pow(0.1).div(20);
+            game.area = game.area.add(gain);
+        }
+    }
+    updateDisplay();
+}, 50);
+
+setInterval(() => {
+    if (game.scalar.gte(10000) && !game.achievements.d2) {
+        game.achievements.d2 = true;
+        showAchievementNotification("成就达成：二维化");
+    }
+    
+    if (game.vector.x.gt(0) && game.vector.y.gt(0) && !game.achievements.max) {
+        const ratio = game.vector.x.div(game.vector.y);
+        if (ratio.sub(1.695).abs().lte(0.01)) {
+            game.achievements.max = true;
+            calculateVectorEffects();
+            showAchievementNotification("成就达成：《最值问题》");
+        }
+    }
+    
+    if (game.vectorB.unlocked && getAutoClickerSpeed().gte(3e8) && !game.achievements.lightSpeed) {
+        game.achievements.lightSpeed = true;
+        calculateVectorEffects();
+        showAchievementNotification("成就达成：光速点击");
+    }
+    
+    if (game.hasAscended && game.scalar.gte(1e8) && 
+        game.vector.x.eq(0) && game.vector.y.eq(0) && 
+        (!game.vectorB.unlocked || (game.vectorB.x.eq(0) && game.vectorB.y.eq(0))) && !game.vectorUsed && !game.achievements.uselessVectors) {
+        game.achievements.uselessVectors = true;
+        calculateVectors();
+        showAchievementNotification("成就达成：搞这么多向量，有什么用！");
+    }
+    
+    if (game.length.gte(1e6) && !game.achievements.longJourney) {
+        game.achievements.longJourney = true;
+        showAchievementNotification("成就达成：不积跬步，无以至千里");
+    }
+
+   if (game.vectorD.unlocked && 
+        (ax.gte(1e7) || ay.gte(1e7)) &&
+        !game.achievements.megaVector) {
+        game.achievements.megaVector = true;
+        game.achievements.max = true;
+        calculateVectorEffects();
+        showAchievementNotification("成就达成：巨型向量");
+    }
+    
+    if (game.scalar.gte(Decimal.pow(2, 1024)) && !game.achievements.breakInfinity) {
+        game.achievements.breakInfinity = true;
+        showAchievementNotification("成就达成：打破无限");
+    }
+    
+    if (game.achievements.max && 
+        (game.vectorB.x.eq(0) ^ game.vectorB.y.eq(0)) &&
+        game.vectorC.x.eq(game.vectorC.y) && game.vectorC.x.gt(0) &&
+        game.vectorD.x.eq(0) && game.vectorD.y.gt(0) &&
+        !game.achievements.fourVectors) {
+        game.achievements.fourVectors = true;
+        showAchievementNotification("成就达成：四维主宰");
+    }
+
+    if (game.hasThirdDimension && !game.achievements.youAreHacker && 
+        Date.now() - game.thirdDimensionStartTime <= 666000 && 
+        game.scalar.gte(new Decimal(10).pow(66666).mul(6.6))) {
+        game.achievements.youAreHacker = true;
+        showAchievementNotification("成就达成：666，这个入是桂");
+    }
+
+    if (!game.achievements.spaceVectorBasic &&
+        game.vectorE.x.eq(game.vectorE.y) && game.vectorE.y.eq(game.vectorE.z) && game.vectorE.x.gt(0)) {
+        game.achievements.spaceVectorBasic = true;
+        calculateVectors();
+        showAchievementNotification("成就达成：空间向量初步");
+    }
+
+    if (game.upgrades.areaUnlock && !game.achievements.area1ym && game.area.gte(new Decimal(1e-48).div(PLANCK_LENGTH.pow(2)))) {
+        game.achievements.area1ym = true;
+        showAchievementNotification("成就达成：一ym见方");
+    }
+
+    if (game.vectorF.unlocked && !game.achievements.mirrorF &&
+        ex.eq(fz) && ey.eq(fy) && ez.eq(fx) &&
+        ex.gt(0) && ey.gt(0) && ez.gt(0) &&
+        !ex.eq(ey) && !ey.eq(ez) && !ex.eq(ez)) {
+        game.achievements.mirrorF = true;
+        calculateVectorEffects();
+        showAchievementNotification("成就达成：zyx.");
+    }
+}, 1000);
+
+function showAchievementNotification(name) {
+    const notif = document.getElementById('achievementNotification');
+    notif.textContent = `${name}`;
+    notif.style.display = 'block';
+    updateDisplay();
+    setTimeout(() => notif.style.display = 'none', 2000);
+}
+
+document.addEventListener('dblclick', function(e) {
+    e.preventDefault();
+}, { passive: false });
+
+// 捕获全局错误
+window.onerror = function(message, source, lineno, colno, error) {
+    // 构建错误信息
+    const errorInfo = [
+        "错误信息: " + message,
+        "文件: " + source,
+        "行号: " + lineno,
+        "列号: " + colno,
+        "堆栈追踪: " + (error && error.stack ? error.stack : "无")
+    ].join("\n");
+
+    // 显示弹窗
+    alert("检测到错误:\n\n" + errorInfo);    
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化设置
+    document.getElementById('resetConfirm').onchange = e => game.settings.confirm = e.target.checked;
+    document.getElementById('thirdDimensionResetConfirm').onchange = e => game.settings.thirdDimensionConfirm = e.target.checked;
+
+    document.addEventListener('keydown', function(e) {
+        if (document.visibilityState === 'visible') {
+            if (e.code === 'KeyS' && !e.repeat) {
+                clickScalar();
+                document.getElementById('clickButton').classList.add('active');
+                setTimeout(() => {
+                    document.getElementById('clickButton').classList.remove('active');
+                }, 100);
+                e.preventDefault();
+            }
+
+            if (e.code === 'KeyA') {
+                tryAscend();
+                e.preventDefault();
+            }
+
+            if (e.code === 'KeyT') {
+                tryThirdDimension();
+                e.preventDefault();
+            }
+        }
+    });
+    // 加载存档
+    loadGame();
+    showTab(game.currentTab);
+});
+
+    </script>
+</body>
+</html>
